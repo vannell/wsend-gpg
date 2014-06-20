@@ -1,7 +1,22 @@
 #!/bin/bash
 #
-gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2 "$1"
-if [ -e "$1.gpg" ]; then
-  $HOME/.wsend/wsend "$1.gpg"
-  rm "$1.gpg"
+
+if [[ $# < 2 ]]
+then
+    echo "wsend-gpg [wsend-options] <file>"
+    exit 1
+fi
+
+TARGET=${@: -1:1}
+
+if [[ -d "$TARGET" ]]
+then
+    tar c "$TARGET" | gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2 > "$TARGET.gpg"
+else
+    gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2 "$TARGET"
+fi
+
+if [ -e "$TARGET.gpg" ]; then
+  $HOME/.wsend/wsend ${@:1:$(($# - 1))} "$TARGET.gpg"
+  rm "$TARGET.gpg"
 fi
