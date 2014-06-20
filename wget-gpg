@@ -1,5 +1,5 @@
-#!/bin/bash
-#
+#!/usr/bin/env bash
+
 wget "$1"
 filename=${1##*/}
 filenamed=${filename%.*}
