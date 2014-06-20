@@ -8,15 +8,17 @@ then
 fi
 
 TARGET=${@: -1:1}
+GPG="gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2"
 
 if [[ -d "$TARGET" ]]
 then
-    tar c "$TARGET" | gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2 > "$TARGET.gpg"
+    tar c "$TARGET" | $GPG > "$TARGET.gpg"
 else
-    gpg -c -z 9 --require-secmem --cipher-algo AES256 --s2k-cipher-algo AES256 --s2k-digest-algo SHA512 --s2k-mode 3 --s2k-count 65000000 --compress-algo BZIP2 "$TARGET"
+    $GPG "$TARGET"
 fi
 
-if [ -e "$TARGET.gpg" ]; then
+if [[ -e "$TARGET.gpg" ]]
+then
   $HOME/.wsend/wsend ${@:1:$(($# - 1))} "$TARGET.gpg"
   rm "$TARGET.gpg"
 fi
